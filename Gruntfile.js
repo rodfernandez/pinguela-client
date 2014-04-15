@@ -2,7 +2,6 @@
 
 module.exports = function (grunt) {
 
-    // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: ['dist/'],
@@ -38,12 +37,12 @@ module.exports = function (grunt) {
         }
     });
 
-    // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
 
-    // Default task.
-    grunt.registerTask('default', ['jshint', 'clean', 'requirejs']);
+    grunt.registerTask('test', ['jshint']);
+    grunt.registerTask('build', ['test', 'clean', 'requirejs']);
+    grunt.registerTask('default', ['build']);
 
 };
