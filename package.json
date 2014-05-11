@@ -16,6 +16,10 @@
         "requirejs": "2.1.11",
         "underscore": "1.6.0"
     },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/rodfernandez/pinguela-client.git"
+    },
     "scripts": {
         "test": "grunt test"
     },
