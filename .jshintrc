@@ -11,9 +11,11 @@
     "boss": true,
     "eqnull": true,
     "globals": {
+        "console": false,
         "define": false,
         "document": false,
         "navigator": false,
-        "requirejs": false
+        "requirejs": false,
+        "window": false
     }
 }
