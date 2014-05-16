@@ -2,6 +2,10 @@
 
 module.exports = function (grunt) {
 
+    var CRLF = grunt.util.linefeed;
+    var wrapStart = '(function() {' + CRLF;
+    var wrapEnd = 'require("./lib/navigator.js");' + CRLF + '}());';
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         clean: ['dist/'],
@@ -19,8 +23,8 @@ module.exports = function (grunt) {
                     out: './dist/pinguela-client-dev.js',
                     useStrict: true,
                     wrap: {
-                        start: '(function() {' + grunt.util.linefeed,
-                        end: 'require("./lib/navigator.js");' + grunt.util.linefeed + '}());'
+                        start: wrapStart,
+                        end: wrapEnd
                     }
                 }
             },
@@ -33,8 +37,8 @@ module.exports = function (grunt) {
                     out: './dist/pinguela-client.js',
                     useStrict: true,
                     wrap: {
-                        start: '(function() {' + grunt.util.linefeed,
-                        end: 'require("./lib/navigator.js");' + grunt.util.linefeed + '}());'
+                        start: wrapStart,
+                        end: wrapEnd
                     }
                 }
             }

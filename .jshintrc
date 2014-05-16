@@ -1,6 +1,9 @@
 {
+    "boss": true,
+    "browser": true,
     "curly": true,
     "eqeqeq": true,
+    "eqnull": true,
     "immed": true,
     "latedef": true,
     "newcap": true,
@@ -8,14 +11,8 @@
     "sub": true,
     "undef": true,
     "unused": false,
-    "boss": true,
-    "eqnull": true,
     "globals": {
-        "console": false,
         "define": false,
-        "document": false,
-        "navigator": false,
-        "requirejs": false,
-        "window": false
+        "requirejs": false
     }
 }

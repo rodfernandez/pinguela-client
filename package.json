@@ -1,6 +1,6 @@
 {
     "name": "pinguela-client",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "",
     "author": "Rodrigo Fernandez <rodrigo@fnnd.es> (fnnd.es)",
     "license": "MIT",
@@ -13,8 +13,7 @@
         "grunt-contrib-requirejs": "0.4.3",
         "grunt-contrib-watch": "0.6.1",
         "q": "1.0.1",
-        "requirejs": "2.1.11",
-        "underscore": "1.6.0"
+        "requirejs": "2.1.11"
     },
     "repository": {
         "type": "git",
