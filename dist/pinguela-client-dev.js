@@ -4309,7 +4309,8 @@ define('lib/networkService',['underscore', 'eventemitter2'], function (_, EventE
         this.type = this._options.service.type;
         this.url = this._options.service.url;
 
-        this._options.socket.on('pinguela:serviceDisappeared', this._onServiceDisappeared.bind(this));
+        this._options.socket.on('pinguela:servicesFound', this._onServicesFound.bind(this));
+        this._options.socket.on('pinguela:servicesLost', this._onServicesLost.bind(this));
     };
 
     NetworkService.prototype = new EventEmitter2();
@@ -4317,17 +4318,34 @@ define('lib/networkService',['underscore', 'eventemitter2'], function (_, EventE
     NetworkService.prototype.constructor = NetworkService;
 
     /**
-     * Handles 'pinguela:service-unavailable' messages.
+     * Handles 'pinguela:servicesFound' messages.
      *
      * @private
      */
-    NetworkService.prototype._onServiceDisappeared = function (services) {
+    NetworkService.prototype._onServicesFound = function (services) {
         var self = this,
             found = _.find(services, function (service) {
                 return service.id === self.id;
             });
 
         if (found) {
+            self.online = true;
+            self.emit('available', self);
+        }
+    };
+
+    /**
+     * Handles 'pinguela:servicesLost' messages.
+     *
+     * @private
+     */
+    NetworkService.prototype._onServicesLost = function (services) {
+        var self = this,
+            lost = _.find(services, function (service) {
+                return service.id === self.id;
+            });
+
+        if (lost) {
             self.online = false;
             self.emit('unavailable', self);
         }
@@ -4445,7 +4463,7 @@ define('lib/networkService',['underscore', 'eventemitter2'], function (_, EventE
  * @module NetworkServices
  * @see {link http://www.w3.org/TR/discovery-api/#networkservices}
  */
-define('lib/networkServices',['eventemitter2', './networkService'], function (EventEmitter2, NetworkService) {
+define('lib/networkServices',['underscore', 'eventemitter2', './networkService'], function (_, EventEmitter2, NetworkService) {
 
     'use strict';
 
@@ -4474,22 +4492,11 @@ define('lib/networkServices',['eventemitter2', './networkService'], function (Ev
             throw new TypeError('Expected options.services argument to be an array  .');
         }
 
-        this.length = options.services.length;
-        this.servicesAvailable = this.length;
         this._socket = options.socket;
 
-        options.services.forEach(function (service, index) {
-            var networkService = new NetworkService({
-                service: service,
-                socket: this._socket
-            });
+        _.each(options.services, this._addService, this);
 
-            networkService.onavailable(this._onServiceAvailable.bind(this));
-            networkService.onunavailable(this._onServiceUnavailable.bind(this));
-
-            this[index] = networkService;
-        }, this);
-
+        this._socket.on('pinguela:servicesFound', this._onServicesFound.bind(this));
         this._socket.on('disconnect', this._onSocketDisconnect.bind(this));
         this._socket.on('error', this._onSocketError.bind(this));
     };
@@ -4502,14 +4509,50 @@ define('lib/networkServices',['eventemitter2', './networkService'], function (Ev
 
     // Private members
 
-    NetworkServices.prototype._onServiceAvailable = function (networkservice) {
+    NetworkServices.prototype._addService = function (service) {
+        var networkService = new NetworkService({
+            service: service,
+            socket: this._socket
+        });
+
+        networkService.onavailable(this._onServiceAvailable.bind(this));
+        networkService.onunavailable(this._onServiceUnavailable.bind(this));
+
+        this[this.length++] = networkService;
         this.servicesAvailable++;
-        this.emit('servicefound', networkservice);
+        this.emit('servicefound', networkService);
     };
 
-    NetworkServices.prototype._onServiceUnavailable = function (networkservice) {
-        this.servicesAvailable--;
-        this.emit('servicelost', networkservice);
+    NetworkServices.prototype._getIds = function () {
+        var ids = [];
+
+        for (var i = 0; i < this.length; i++) {
+            ids.push(this[i].id);
+        }
+
+        return ids;
+    };
+
+    NetworkServices.prototype._onServiceAvailable = function (networkService) {
+        ++this.servicesAvailable;
+        this.emit('servicefound', networkService);
+    };
+
+    NetworkServices.prototype._onServiceUnavailable = function (networkService) {
+        --this.servicesAvailable;
+        this.emit('servicelost', networkService);
+    };
+
+    NetworkServices.prototype._onServicesFound = function (services) {
+        var ids = this._getIds(),
+
+            filter = function (service) {
+                return !_.contains(ids, service.id);
+            },
+
+            filtered = _.filter(services, filter, this);
+
+        _.each(filtered, this._addService, this);
     };
 
     NetworkServices.prototype._onSocketDisconnect = function () {

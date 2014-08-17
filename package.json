@@ -1,6 +1,6 @@
 {
     "name": "pinguela-client",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "This library implements the NavigatorNetworkService interface for past and current browsers.",
     "author": "Rodrigo Fernandez <rodrigo@fnnd.es> (fnnd.es)",
     "license": "MIT",
